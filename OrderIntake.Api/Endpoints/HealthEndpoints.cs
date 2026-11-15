@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using OrderIntake.Api.Data;
+using OrderIntake.Api.Dtos;
 
 namespace OrderIntake.Api.Endpoints;
 
@@ -41,5 +42,3 @@ public static class HealthEndpoints
         }
     }
 }
-
-public sealed record HealthResponse(string Status, string Database);
