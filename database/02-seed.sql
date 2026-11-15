@@ -1,3 +1,7 @@
+USE OrderIntake;
+
+
+GO
 INSERT INTO Products (Sku, Name, Price, IsActive)
 SELECT v.Sku,
        v.Name,
@@ -8,6 +12,8 @@ WHERE  NOT EXISTS (SELECT 1
                    FROM   Products AS p
                    WHERE  p.Sku = v.Sku);
 
+
+GO
 SELECT   Sku,
          Name,
          Price,

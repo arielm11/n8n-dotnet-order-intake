@@ -1,32 +1,37 @@
--- Products table
+IF DB_ID('OrderIntake') IS NULL
+    CREATE DATABASE OrderIntake;
+
+
+GO
+USE OrderIntake;
+
+
+GO
 CREATE TABLE Products (
     Id UNIQUEIDENTIFIER CONSTRAINT DF_Products_Id DEFAULT (NEWSEQUENTIALID()) NOT NULL CONSTRAINT PK_Products PRIMARY KEY,
-    Sku VARCHAR(50) NOT NULL CONSTRAINT UQ_Products_Sku UNIQUE,
+    Sku VARCHAR (50) NOT NULL CONSTRAINT UQ_Products_Sku UNIQUE,
     Name VARCHAR (100) NOT NULL,
     Price DECIMAL (18, 2) NOT NULL CONSTRAINT CK_Products_Price CHECK (Price >= 0),
-    IsActive BIT NOT NULL CONSTRAINT DF_Products_IsActive DEFAULT (1)
+    IsActive BIT CONSTRAINT DF_Products_IsActive DEFAULT (1) NOT NULL
 );
 
--- Customers table
 CREATE TABLE Customers (
     Id UNIQUEIDENTIFIER CONSTRAINT DF_Customers_Id DEFAULT (NEWSEQUENTIALID()) NOT NULL CONSTRAINT PK_Customers PRIMARY KEY,
     Name NVARCHAR (100) NOT NULL,
     Email NVARCHAR (255) NOT NULL CONSTRAINT UQ_Customers_Email UNIQUE
 );
 
--- Orders table
 CREATE TABLE Orders (
     Id UNIQUEIDENTIFIER CONSTRAINT DF_Orders_Id DEFAULT (NEWSEQUENTIALID()) NOT NULL CONSTRAINT PK_Orders PRIMARY KEY,
     CustomerId UNIQUEIDENTIFIER NOT NULL,
-    Status VARCHAR(20) NOT NULL 
-        CONSTRAINT DF_Orders_Status DEFAULT ('Received') 
-        CONSTRAINT CK_Orders_Status CHECK (Status IN ('Received', 'Confirmed', 'Rejected')),
+    Status VARCHAR (20) CONSTRAINT DF_Orders_Status DEFAULT ('Received') NOT NULL CONSTRAINT CK_Orders_Status CHECK (Status IN ('Received', 'Confirmed', 'Rejected')),
     TotalPrice DECIMAL (18, 2) NOT NULL CONSTRAINT CK_Orders_TotalPrice CHECK (TotalPrice >= 0),
-    CreatedAtUtc DATETIME2 (0) CONSTRAINT DF_Orders_CreateDate DEFAULT (SYSUTCDATETIME()) NOT NULL,
+    CreatedAtUtc DATETIME2 (0) CONSTRAINT DF_Orders_CreatedAtUtc DEFAULT (SYSUTCDATETIME()) NOT NULL,
+    RejectionReason NVARCHAR (500) NULL,
+    DecidedAtUtc DATETIME2 (0) NULL,
     CONSTRAINT FK_Orders_Customers FOREIGN KEY (CustomerId) REFERENCES Customers (Id)
 );
 
--- 1:N table about orders and items
 CREATE TABLE OrderItems (
     Id UNIQUEIDENTIFIER CONSTRAINT DF_OrderItems_Id DEFAULT (NEWSEQUENTIALID()) NOT NULL CONSTRAINT PK_OrderItems PRIMARY KEY,
     OrderId UNIQUEIDENTIFIER NOT NULL,
@@ -38,7 +43,7 @@ CREATE TABLE OrderItems (
 );
 
 CREATE NONCLUSTERED INDEX IX_Orders_CustomerId
-    ON Orders (CustomerId);
+    ON Orders(CustomerId);
 
 CREATE NONCLUSTERED INDEX IX_OrderItems_OrderId
-    ON OrderItems (OrderId);
+    ON OrderItems(OrderId);
