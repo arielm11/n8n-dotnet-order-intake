@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Demo Tech Store</title>
+    <style>
+        :root {
+            --bg: #eef1f6;
+            --card: #ffffff;
+            --text: #1d2433;
+            --muted: #667085;
+            --accent: #2f6fed;
+            --accent-dark: #2459c4;
+            --accent-light: #eaf1ff;
+            --error: #c0352b;
+            --error-bg: #fdecea;
+            --success: #1f8a4c;
+            --success-bg: #e8f5ee;
+            --border: #e4e7ec;
+            --radius: 12px;
+            --shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 4px 12px rgba(16, 24, 40, .06);
+            --shadow-lg: 0 2px 4px rgba(16, 24, 40, .06), 0 12px 24px rgba(16, 24, 40, .08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background:
+                radial-gradient(1200px 500px at 50% -10%, var(--accent-light), transparent),
+                var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        header .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        header h1 { margin: 0; font-size: 19px; letter-spacing: -.01em; }
+        header p { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; }
+
+        main {
+            max-width: 1040px;
+            margin: 0 auto;
+            padding: 32px 24px 48px;
+            display: grid;
+            gap: 24px;
+            grid-template-columns: 1fr 320px;
+            align-items: start;
+        }
+
+        @media (max-width: 800px) {
+            main { grid-template-columns: 1fr; }
+        }
+
+        section > h2, aside h2 {
+            font-size: 15px;
+            font-weight: 700;
+            margin: 0 0 14px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: var(--muted);
+        }
+
+        .products {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        }
+
+        .product {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: var(--shadow);
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+
+        .product:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .product strong { font-size: 14.5px; }
+
+        .product .sku {
+            align-self: flex-start;
+            color: var(--muted);
+            font-size: 11px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            background: var(--bg);
+            border-radius: 999px;
+            padding: 2px 8px;
+        }
+
+        .product .price { font-weight: 700; font-size: 16px; color: var(--accent-dark); }
+
+        .product label {
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        input {
+            font: inherit;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .product input { width: 64px; text-align: center; }
+
+        aside {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            align-self: start;
+            position: sticky;
+            top: 24px;
+        }
+
+        form { display: flex; flex-direction: column; gap: 14px; }
+
+        form label {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted);
+        }
+
+        .total {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-weight: 700;
+            font-size: 16px;
+            background: var(--accent-light);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+
+        .total span:first-child {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: var(--accent-dark);
+        }
+
+        button {
+            font: inherit;
+            font-weight: 600;
+            font-size: 14.5px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: filter .15s ease, transform .05s ease;
+        }
+
+        button:hover { filter: brightness(1.08); }
+        button:active { transform: translateY(1px); }
+        button:disabled { opacity: .6; cursor: wait; filter: none; }
+
+        .message {
+            display: none;
+            margin-top: 14px;
+            font-size: 13.5px;
+            line-height: 1.45;
+            border-radius: 8px;
+            padding: 12px 14px;
+            border: 1px solid transparent;
+        }
+
+        .message.error { display: block; background: var(--error-bg); color: var(--error); border-color: #f7cfc9; }
+        .message.success { display: block; background: var(--success-bg); color: var(--success); border-color: #c7e8d3; }
+        .message ul { margin: 6px 0 0; padding-left: 18px; }
+
+        footer {
+            max-width: 1040px;
+            margin: 0 auto;
+            padding: 0 24px 32px;
+            color: var(--muted);
+            font-size: 12.5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">DT</div>
+        <div>
+            <h1>Demo Tech Store</h1>
+            <p>Order intake demo: this form posts to an n8n webhook, which creates the order through a .NET API.</p>
+        </div>
+    </header>
+
+    <main>
+        <section>
+            <h2>Products</h2>
+            <div id="products" class="products">
+                <p>Loading products...</p>
+            </div>
+        </section>
+
+        <aside>
+            <h2>Your order</h2>
+            <form id="order-form" novalidate>
+                <label>
+                    Name
+                    <input id="name" autocomplete="name" required>
+                </label>
+                <label>
+                    Email
+                    <input id="email" type="email" autocomplete="email" required>
+                </label>
+                <div class="total">
+                    <span>Total</span>
+                    <span id="total">$0.00</span>
+                </div>
+                <button type="submit" id="submit">Place order</button>
+            </form>
+            <div id="message" class="message"></div>
+        </aside>
+    </main>
+
+    <footer>n8n + .NET order intake demo</footer>
+
+    <script>
+        const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+        const productsEl = document.getElementById('products');
+        const totalEl = document.getElementById('total');
+        const form = document.getElementById('order-form');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const submitButton = document.getElementById('submit');
+        const messageEl = document.getElementById('message');
+
+        let products = [];
+
+        function showMessage(type, title, details = []) {
+            messageEl.className = `message ${type}`;
+            messageEl.replaceChildren();
+
+            const strong = document.createElement('strong');
+            strong.textContent = title;
+            messageEl.append(strong);
+
+            if (details.length > 0) {
+                const list = document.createElement('ul');
+                for (const detail of details) {
+                    const item = document.createElement('li');
+                    item.textContent = detail;
+                    list.append(item);
+                }
+                messageEl.append(list);
+            }
+        }
+
+        function clearMessage() {
+            messageEl.className = 'message';
+            messageEl.replaceChildren();
+        }
+
+        function selectedItems() {
+            return [...productsEl.querySelectorAll('input[data-sku]')]
+                .map(input => ({ sku: input.dataset.sku, quantity: Number(input.value) }))
+                .filter(item => Number.isInteger(item.quantity) && item.quantity > 0);
+        }
+
+        function updateTotal() {
+            const total = selectedItems().reduce((sum, item) => {
+                const product = products.find(p => p.sku === item.sku);
+                return sum + item.quantity * product.price;
+            }, 0);
+
+            totalEl.textContent = currency.format(total);
+        }
+
+        function renderProduct(product) {
+            const card = document.createElement('div');
+            card.className = 'product';
+
+            const name = document.createElement('strong');
+            name.textContent = product.name;
+
+            const sku = document.createElement('span');
+            sku.className = 'sku';
+            sku.textContent = product.sku;
+
+            const price = document.createElement('span');
+            price.className = 'price';
+            price.textContent = currency.format(product.price);
+
+            const label = document.createElement('label');
+            label.textContent = 'Quantity';
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.min = '0';
+            input.max = '99';
+            input.value = '0';
+            input.dataset.sku = product.sku;
+            input.addEventListener('input', updateTotal);
+
+            label.append(input);
+            card.append(name, sku, price, label);
+
+            return card;
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                if (!response.ok) {
+                    throw new Error(`Unexpected status ${response.status}`);
+                }
+
+                products = await response.json();
+                productsEl.replaceChildren(...products.map(renderProduct));
+            } catch {
+                productsEl.textContent = 'Could not load products. Make sure the API is running.';
+            }
+        }
+
+        function resetForm() {
+            form.reset();
+            productsEl.querySelectorAll('input[data-sku]').forEach(input => input.value = '0');
+            updateTotal();
+        }
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            clearMessage();
+
+            const items = selectedItems();
+            if (items.length === 0) {
+                showMessage('error', 'Select at least one product.');
+                return;
+            }
+
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customer: { name: nameInput.value, email: emailInput.value },
+                        items
+                    })
+                });
+
+                const body = await response.json().catch(() => null);
+
+                if (response.status === 201 && body) {
+                    showMessage('success', 'Order received!', [
+                        `Order ${body.id.slice(0, 8)} for ${currency.format(body.total)} is waiting for confirmation.`,
+                        `We will email you at ${body.customer.email}.`
+                    ]);
+                    resetForm();
+                } else if (response.status === 400 && body?.errors) {
+                    showMessage('error', 'Please fix the following:', Object.values(body.errors).flat());
+                } else if (response.status === 422 && body?.unavailableSkus) {
+                    showMessage('error', body.title, [`Unavailable: ${body.unavailableSkus.join(', ')}`]);
+                } else {
+                    showMessage('error', 'Something went wrong. Please try again.');
+                }
+            } catch {
+                showMessage('error', 'Could not reach the server. Please try again.');
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+
+        loadProducts();
+    </script>
+</body>
+</html>
