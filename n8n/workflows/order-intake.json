@@ -1,0 +1,424 @@
+{
+  "name": "Order Intake",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "order-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7e197226-c14e-497c-a288-24aecf87d86e",
+      "name": "Webhook",
+      "webhookId": "0f7671db-e597-4cc2-8486-5c59ab0ac0b4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:5257/orders",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "e2540db0-d7a3-4e10-867a-fb97ea81c7ed",
+      "name": "Create Order",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zyxGGZ1zyZIlMpMz",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "a1cb40a6-96b8-491f-bbc6-83da561ef591",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 201,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "994c8efa-e6eb-4f42-98b8-8cd36e99dad0",
+      "name": "Order Created?"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "responseCode": 201
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        -96
+      ],
+      "id": "9fa9e224-7444-4941-b45c-33836e3ebccb",
+      "name": "Respond Success"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode }}"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        96
+      ],
+      "id": "8b54806b-4da4-4ee9-9585-8a6caebf3072",
+      "name": "Respond Error"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "fromEmail": "orders@demo.local",
+        "toEmail": "team@demo.local",
+        "subject": "=New order: {{ $('Create Order').item.json.body.customer.name }} - ${{ $('Create Order').item.json.body.total }}",
+        "message": "=Customer: {{ $('Create Order').item.json.body.customer.name }} ({{ $('Create Order').item.json.body.customer.email }})\nTotal: ${{ $('Create Order').item.json.body.total }}\n\nItems:\n{{ $('Create Order').item.json.body.items.map(i => `${i.quantity}x ${i.name} (${i.sku})`).join('\\n') }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        896,
+        -96
+      ],
+      "id": "e8a0f5e7-2bd9-434b-8937-ef310b96821d",
+      "name": "Ask Team Approval",
+      "webhookId": "b7fdeb39-b2cd-464b-b10a-2546ce46f3e1",
+      "credentials": {
+        "smtp": {
+          "id": "ehgBASXA0hnbJXtY",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "b5fb0bcb-0494-48e9-9d6b-a19be89d8655",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1120,
+        -96
+      ],
+      "id": "2bb37cdb-16d3-49d5-853d-41f2574f3f43",
+      "name": "Approved?"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://host.docker.internal:5257/orders/{{ $('Create Order').item.json.body.id }}/status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{ \"status\": \"Confirmed\" }",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1344,
+        -192
+      ],
+      "id": "d00de8d1-3af8-43a7-8283-15a6f164b508",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zyxGGZ1zyZIlMpMz",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "orders@demo.local",
+        "toEmail": "={{ $json.customer.email }}",
+        "subject": "Your order is confirmed",
+        "emailFormat": "text",
+        "text": "=Hi {{ $json.customer.name }},\n\nYour order has been confirmed.\n\n{{ $json.items.map(i => `${i.quantity}x ${i.name} - $${i.lineTotal}`).join('\\n') }}\n\nTotal: ${{ $json.total }}\n\nThank you for your purchase!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1568,
+        -192
+      ],
+      "id": "4c3284c2-5a9c-4e91-9caf-ab6d151f7aab",
+      "name": "Notify Customer Confirmed",
+      "webhookId": "db026722-cbaa-46ac-978e-854795e194a3",
+      "credentials": {
+        "smtp": {
+          "id": "ehgBASXA0hnbJXtY",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://host.docker.internal:5257/orders/{{ $('Create Order').item.json.body.id }}/status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{ \"status\": \"Rejected\", \"rejectionReason\": \"We are unable to fulfill this order at the moment.\" }",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "a7e7b33a-a190-4353-aa49-a7b9f6f0b744",
+      "name": "Reject Order",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zyxGGZ1zyZIlMpMz",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "orders@demo.local",
+        "toEmail": "={{ $json.customer.email }}",
+        "subject": "Update on your order",
+        "emailFormat": "text",
+        "text": "=Hi {{ $json.customer.name }},\n\nUnfortunately we could not confirm your order.\n\nReason: {{ $json.rejectionReason }}\n\nNo payment has been taken. Feel free to place a new order or reply to this email.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1568,
+        0
+      ],
+      "id": "513a4b39-1525-4de4-9ff8-ef7dc238e6e6",
+      "name": "Notify Customer Rejected",
+      "webhookId": "67f8aaf4-de00-4e57-ae80-3bef5e685b62",
+      "credentials": {
+        "smtp": {
+          "id": "ehgBASXA0hnbJXtY",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Create Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Order": {
+      "main": [
+        [
+          {
+            "node": "Order Created?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Order Created?": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond Success": {
+      "main": [
+        [
+          {
+            "node": "Ask Team Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Team Approval": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reject Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Notify Customer Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reject Order": {
+      "main": [
+        [
+          {
+            "node": "Notify Customer Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "9948a0a0-30f7-4430-a42c-77c31a392189",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "700f6c2a894a6347195382ec954d187cc42b269582b5f4339ed33414dda95478"
+  },
+  "nodeGroups": [],
+  "id": "aAwQHtl7le0suaw4",
+  "tags": []
+}
