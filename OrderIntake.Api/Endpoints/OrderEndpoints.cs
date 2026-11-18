@@ -1,4 +1,5 @@
 ﻿using OrderIntake.Api.Dtos;
+using OrderIntake.Api.Filters;
 using OrderIntake.Api.Models;
 using OrderIntake.Api.Models.Enums;
 using OrderIntake.Api.Repositories;
@@ -10,7 +11,9 @@ public static class OrderEndpoints
 {
     public static IEndpointRouteBuilder MapOrderEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/orders").WithTags("Orders");
+        var group = app.MapGroup("/orders")
+            .WithTags("Orders")
+            .AddEndpointFilter<ApiKeyEndpointFilter>();
 
         group.MapPost("/", CreateOrderAsync)
             .WithName("CreateOrder")
