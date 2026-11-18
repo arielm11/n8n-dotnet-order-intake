@@ -1,0 +1,7 @@
+{
+  "customer": { "name": "John Doe", "email": "john@example.com" },
+  "items": [
+    { "sku": "KB-001", "quantity": 1 },
+    { "sku": "MS-001", "quantity": 2 }
+  ]
+}
