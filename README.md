@@ -4,7 +4,7 @@ End-to-end order automation for a small online store: a customer places an order
 
 It replaces the manual routine of reading order emails, checking prices, typing them into a spreadsheet and replying to each customer by hand.
 
-[![Watch the demo](https://img.youtube.com/vi/IW0n_FUVMAU/hqdefault.jpg)]([https://youtu.be/](https://youtu.be/IW0n_FUVMAU))
+[![Watch the demo](https://img.youtube.com/vi/IW0n_FUVMAU/hqdefault.jpg)](https://youtu.be/IW0n_FUVMAU)
 
 ![n8n workflow](docs/images/n8n-workflow.png)
 
