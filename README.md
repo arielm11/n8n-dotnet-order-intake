@@ -4,9 +4,13 @@ End-to-end order automation for a small online store: a customer places an order
 
 It replaces the manual routine of reading order emails, checking prices, typing them into a spreadsheet and replying to each customer by hand.
 
-[![Watch the demo](https://img.youtube.com/vi/IW0n_FUVMAU/hqdefault.jpg)](https://youtu.be/IW0n_FUVMAU)
+## Demo
 
-![n8n workflow](docs/images/n8n-workflow.png)
+▶️ **[Watch the 2-minute demo on YouTube](https://youtu.be/IW0n_FUVMAU)**
+
+<a href="https://youtu.be/IW0n_FUVMAU">
+  <img src="https://img.youtube.com/vi/IW0n_FUVMAU/maxresdefault.jpg" alt="Watch the demo" width="720">
+</a>
 
 ## How it works
 
@@ -16,6 +20,8 @@ It replaces the manual routine of reading order emails, checking prices, typing 
 4. n8n emails the team with the order details and **Approve** / **Disapprove** buttons, then pauses until someone answers.
 5. Based on the decision, n8n updates the order to `Confirmed` or `Rejected` through the API.
 6. The customer receives a confirmation or rejection email.
+
+![n8n workflow](docs/images/n8n-workflow.png)
 
 ```mermaid
 flowchart LR
